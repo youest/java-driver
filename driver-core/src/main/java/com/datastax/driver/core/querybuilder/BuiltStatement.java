@@ -26,18 +26,22 @@ abstract class BuiltStatement extends Statement {
 
     private final List<ColumnMetadata> partitionKey;
     private final ByteBuffer[] routingKey;
+    protected final String keyspace;
+
     private boolean dirty;
     private String cache;
     protected Boolean isCounterOp;
 
-    protected BuiltStatement() {
+    protected BuiltStatement(String keyspace) {
         this.partitionKey = null;
         this.routingKey = null;
+        this.keyspace = keyspace;
     }
 
     protected BuiltStatement(TableMetadata tableMetadata) {
         this.partitionKey = tableMetadata.getPartitionKey();
         this.routingKey = new ByteBuffer[tableMetadata.getPartitionKey().size()];
+        this.keyspace = tableMetadata.getKeyspace().getName();
     }
 
     @Override
@@ -91,6 +95,11 @@ abstract class BuiltStatement extends Statement {
              : compose(routingKey);
     }
 
+    @Override
+    public String getKeyspace() {
+        return keyspace;
+    }
+
     // This is a duplicate of the one in SimpleStatement, but I don't want to expose this publicly so...
     static ByteBuffer compose(ByteBuffer... buffers) {
         int totalLength = 0;
@@ -122,6 +131,7 @@ abstract class BuiltStatement extends Statement {
         protected T statement;
 
         protected ForwardingStatement(T statement) {
+            super((String)null);
             this.statement = statement;
         }
 
@@ -138,6 +148,11 @@ abstract class BuiltStatement extends Statement {
         @Override
         public ByteBuffer getRoutingKey() {
             return statement.getRoutingKey();
+        }
+
+        @Override
+        public String getKeyspace() {
+            return statement.getKeyspace();
         }
 
         @Override
