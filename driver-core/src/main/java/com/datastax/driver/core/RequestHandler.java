@@ -41,7 +41,7 @@ import org.apache.cassandra.exceptions.ReadTimeoutException;
 import org.apache.cassandra.exceptions.WriteTimeoutException;
 import org.apache.cassandra.service.pager.PagingState;
 
-import com.yammer.metrics.core.TimerContext;
+import com.codahale.metrics.Timer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ class RequestHandler implements Connection.ResponseCallback {
 
     private volatile Map<InetAddress, Throwable> errors;
 
-    private final TimerContext timerContext;
+    private final Timer.Context timerContext;
 
     public RequestHandler(Session.Manager manager, Callback callback, Query query) {
         this.manager = manager;
