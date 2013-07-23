@@ -291,6 +291,7 @@ public class Cluster {
         private boolean jmxEnabled = true;
         private final PoolingOptions poolingOptions = new PoolingOptions();
         private final SocketOptions socketOptions = new SocketOptions();
+        private final QueryOptions queryOptions = new QueryOptions();
 
         @Override
         public List<InetAddress> getContactPoints() {
@@ -527,6 +528,17 @@ public class Cluster {
         }
 
         /**
+         * Returns the query options used by this builder.
+         *
+         * @return the query options that will be used by this builder. You
+         * can use the returned object to define the initial query options
+         * for the built cluster.
+         */
+        public QueryOptions queryOptions() {
+            return queryOptions;
+        }
+
+        /**
          * The configuration that will be used for the new cluster.
          * <p>
          * You <b>should not</b> modify this object directly because changes made
@@ -547,7 +559,8 @@ public class Cluster {
                                      poolingOptions,
                                      socketOptions,
                                      authProvider,
-                                     metricsEnabled ? new MetricsOptions(jmxEnabled) : null);
+                                     metricsEnabled ? new MetricsOptions(jmxEnabled) : null,
+                                     queryOptions);
         }
 
         /**

@@ -174,7 +174,7 @@ class RequestHandler implements Connection.ResponseCallback {
 
         Message.Request request = callback.request();
         if (retryConsistencyLevel != null && retryConsistencyLevel != consistencyOf(request))
-            request = Session.makeRequestMessage(query, retryConsistencyLevel, pagingStateOf(request));
+            request = manager.makeRequestMessage(query, retryConsistencyLevel, pagingStateOf(request));
         return request;
     }
 
