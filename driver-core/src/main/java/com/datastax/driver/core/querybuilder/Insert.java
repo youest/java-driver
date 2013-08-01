@@ -15,11 +15,11 @@
  */
 package com.datastax.driver.core.querybuilder;
 
+import com.datastax.driver.core.TableMetadata;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.datastax.driver.core.TableMetadata;
 
 /**
  * A built INSERT statement.
@@ -31,6 +31,7 @@ public class Insert extends BuiltStatement {
     private final List<Object> names = new ArrayList<Object>();
     private final List<Object> values = new ArrayList<Object>();
     private final Options usings;
+    private boolean notExists = false;
 
     Insert(String keyspace, String table) {
         super();
@@ -60,7 +61,12 @@ public class Insert extends BuiltStatement {
         Utils.joinAndAppendValues(builder, ",", values);
         builder.append(")");
 
-        if (!usings.usings.isEmpty()) {
+        if (notExists && !usings.usings.isEmpty()) {
+            throw new IllegalStateException("ifNotExists CAS operation is not compatible with options.");
+        }
+        if (notExists) {
+            builder.append(" IF NOT EXISTS ");
+        } else if (!usings.usings.isEmpty()) {
             builder.append(" USING ");
             Utils.joinAndAppend(builder, " AND ", usings.usings);
         }
@@ -103,6 +109,18 @@ public class Insert extends BuiltStatement {
 
         for (int i = 0; i < names.length; i++)
             maybeAddRoutingKey(names[i], values[i]);
+        return this;
+    }
+
+    /**
+     * Execute the insert as a CAS operation.
+     * Since Cassandra 2.0
+     *
+     * @return this INSERT statement.
+     */
+    public Insert ifNotExists() {
+        this.notExists = true;
+        setDirty();
         return this;
     }
 
